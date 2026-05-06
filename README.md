@@ -75,7 +75,7 @@ Este repositório organiza um fluxo completo de **pré-processamento e análise 
 ## Estrutura Sugerida de Pastas
 
 ```text
-CEPAGRI/
+PROJETO/
 ├─ Dados/
 │  ├─ ABI-L2-ACMF/netCDF/
 │  ├─ ABI-L2-CMIPF/netCDF/
