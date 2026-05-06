@@ -95,9 +95,20 @@ PROJETO/
 
 ---
 
-## Dependências
+## Ambiente e Dependências
 
-### Núcleo geoespacial e raster
+O projeto oferece **duas formas oficiais** de configurar o ambiente:
+
+- `environment.yml` (**recomendado**) para quem usa Conda/Miniconda
+- `requirements.txt` para quem usa `pip` + `venv`
+
+### Quando usar cada arquivo
+
+- Use `environment.yml` quando quiser maior estabilidade em bibliotecas geoespaciais (GDAL/PROJ/GEOS).
+- Use `requirements.txt` quando quiser um setup mais simples e rápido com `pip`.
+- Não é necessário usar os dois ao mesmo tempo; escolha uma estratégia.
+
+### Principais bibliotecas do pipeline
 - `numpy`
 - `rasterio`
 - `xarray`
@@ -112,10 +123,43 @@ PROJETO/
 - `pandas`
 - `tqdm` (opcional para barra de progresso)
 
-### Instalação rápida
+### Opção 1 — Instalação com Conda (recomendada)
 
 ```bash
-pip install numpy rasterio xarray opencv-python geopandas shapely pyproj rioxarray s3fs pandas tqdm
+conda env create -f environment.yml
+conda activate cepagri-goes16
+```
+
+Para atualizar o ambiente após mudanças no arquivo:
+
+```bash
+conda env update -f environment.yml --prune
+```
+
+### Opção 2 — Instalação com pip (`requirements.txt`)
+
+Crie e ative um ambiente virtual:
+
+```bash
+python -m venv .venv
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Windows (PowerShell):
+
+```bash
+.venv\Scripts\Activate.ps1
+```
+
+Instale as dependências:
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---
@@ -156,7 +200,7 @@ Este pipeline é útil para:
 
 ## Próximos Passos Recomendados
 
-- adicionar `environment.yml` ou `requirements.txt` versionado
+- fixar versões das dependências para maior reprodutibilidade entre máquinas
 - criar script único de execução ponta a ponta (CLI)
 - incluir testes automatizados para funções críticas
 - publicar exemplos de visualização em QGIS e notebooks de validação
