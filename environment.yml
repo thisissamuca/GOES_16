@@ -5,21 +5,20 @@ channels:
 dependencies:
   - python=3.11
   - pip
-  - numpy
-  - pandas
-  - xarray
-  - rasterio
-  - rioxarray
-  - geopandas
-  - fiona
-  - shapely
-  - pyproj
-  - cartopy
-  - netcdf4
-  - opencv
-  - s3fs
-  - tqdm
-  - affine
-  - satpy
+  - numpy=2.3.5
+  - pandas=2.3.3
+  - xarray=2026.4.0
+  - rasterio=1.5.0
+  - rioxarray=0.22.0
+  - geopandas=1.1.3
+  - fiona=1.10.1
+  - shapely=2.1.2
+  - pyproj=3.7.2
+  - cartopy=0.25.0
+  - netcdf4=1.7.4
+  - s3fs=2025.10.0
+  - tqdm=4.67.1
+  - affine=2.4.0
+  - satpy=0.60.0
   - pip:
-      - opencv-python
+      - opencv-python==4.13.0.92
