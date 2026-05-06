@@ -1,0 +1,25 @@
+name: cepagri-goes16
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - xarray
+  - rasterio
+  - rioxarray
+  - geopandas
+  - fiona
+  - shapely
+  - pyproj
+  - cartopy
+  - netcdf4
+  - opencv
+  - s3fs
+  - tqdm
+  - affine
+  - satpy
+  - pip:
+      - opencv-python
