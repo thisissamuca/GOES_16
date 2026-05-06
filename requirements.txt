@@ -1,0 +1,16 @@
+affine
+cartopy
+fiona
+geopandas
+netCDF4
+numpy
+opencv-python
+pandas
+pyproj
+rasterio
+rioxarray
+s3fs
+satpy
+shapely
+tqdm
+xarray
