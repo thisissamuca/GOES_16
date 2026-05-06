@@ -1,71 +1,169 @@
-# GOES_16
-Algoritmos relacionados à aquisição, processamento e tratamento de dados de imagens do GOES-16.
+# CEPAGRI - Pipeline GOES-16 para Monitoramento Ambiental
 
-# Aquisição de dados do GOES-16
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white">
+  <img alt="Status" src="https://img.shields.io/badge/status-em%20desenvolvimento-2ea44f">
+  <img alt="Sensoriamento Remoto" src="https://img.shields.io/badge/foco-sensoriamento%20remoto-1f6feb">
+  <img alt="GOES-16" src="https://img.shields.io/badge/fonte-GOES--16-orange">
+</p>
 
-O algoritmo acessa diretamente o banco de arquivos NOAA-GOES-16 através do AWS S3 e salva os arquivos em um diretório local.
+Pipeline de processamento de dados do **satélite GOES-16** para gerar produtos ambientais a partir de dados brutos NetCDF e entregar saídas analíticas como:
 
-# Aquisição de máscaras
+- rasters com máscara de nuvem e máscara hídrica aplicadas
+- índices espectrais (NDVI, NBR, NDMI, EVI, SAVI, etc.)
+- composições de máximo valor (MVC diário e horário)
+- dados de focos de calor (FDCF) em CSV/Shapefile
 
-O Algoritmo atráves do banco de arquivos NOAA-GOES atráves do AWS S3 busca e salva os arquivos do produto ABI-L2-ACMF para ser aplicado nas imagens futuras.
+---
 
-# Aplicação de máscaras
+## Visão Geral do Pipeline
 
-O algoritmo aplica uma máscara híbrida (máscara de nuvens e hídrica) nas imagens com objetivo de remover as nuvens e os corpos hídricos da imagem.
+```mermaid
+flowchart TD
+    A[GET_FILE<br/>Download NetCDF GOES-16] --> B[RECLASSIFIED_MASK<br/>Reclassifica ACMF]
+    B --> C[APPLIED_MASK<br/>Aplica máscara de nuvem]
+    C --> D[CUT<br/>Recorte por área de estudo]
+    D --> E[MASK_HIDRIC<br/>Gera máscara hídrica]
+    E --> F[APPLIED_MASK_HIDRIC<br/>Aplica máscara hídrica]
+    F --> G[SPECTRAL_INDEX<br/>Calcula índices]
+    G --> H[MAXIMUM_VALUE_COMPOSITION<br/>MVC diário e horário]
 
-## Máscara de nuvens
-
-O algoritmo recebe do diretório local os arquivos do produto ABI-L2-ACMF já adquiridos e faz uma reclassificação.
-
-## Máscara hídrica
-
-O algoritmo recebe do diretório local os arquivos do produto ABI-L2-CMIPF_M6C03, multiplica pela máscara de nuvens e transforma os valores menores que 0.15 em NaN.
-
-# Processamento de imagens através dos índices espectrais
-
-O algoritmo executa uma morfologia matemática através de índices espectrais para obter um produto que será alvo de pesquisas atuais e futuras.
-
-<div align="center">
-
-## NDVI - Normalized Difference Vegetation Index
-```math
-(NIR - R) / (NIR + R)
-```
-  
-## NBR - Normalized Burn Ratio
-```math
-(NIR - SWIR2) / (NIR + SWIR2)
+    A --> I[GET_FDCF_DATA<br/>Extrai focos de calor]
 ```
 
-## NBR2 - Variation of Normalized Burn Ratio
-```math
-(SWIR1 - SWIR2) / (SWIR1 + SWIR2)
+---
+
+## Objetivo do Projeto
+
+Este repositório organiza um fluxo completo de **pré-processamento e análise de imagens GOES-16**, com foco em:
+
+- reduzir ruído atmosférico e interferências (nuvens e água)
+- padronizar dados em formatos geoespaciais prontos para SIG
+- produzir indicadores espectrais para vegetação, umidade e queimadas
+- facilitar análises temporais por meio de composições MVC
+- apoiar monitoramento ambiental regional (ex.: Pantanal)
+
+---
+
+## Módulos Principais
+
+| Etapa | Notebook | Ideia central | Saída principal |
+|---|---|---|---|
+| 1 | `GET_FILE.ipynb` | Busca e download de NetCDF no bucket NOAA S3 | Arquivos `.nc` por produto |
+| 2 | `RECLASSIFIED_MASK.ipynb` | Reclassificação da máscara de nuvem (ACMF) | GeoTIFF máscara reclassificada |
+| 3 | `APPLIED_MASK.ipynb` | Aplicação da máscara de nuvem sobre cenas CMIPF | GeoTIFF com nuvem mascarada |
+| 4 | `CUT.ipynb` | Recorte espacial por shapefile da área de estudo | GeoTIFF recortado |
+| 5 | `MASK_HIDRIC.ipynb` | Limiar NIR para separar água e não-água | GeoTIFF máscara hídrica |
+| 6 | `APPLIED_MASK_HIDRIC.ipynb` | Remoção de água/nodata com máscara hídrica | Produto final mascarado |
+| 7 | `SPECTRAL_INDEX.ipynb` | Cálculo de índices espectrais multi-banda | Pastas por índice com `.tif` |
+| 8 | `MAXIMUM_VALUE_COMPOSITION.ipynb` | MVC diário e horário para cada índice | GeoTIFFs de composição |
+| Extra | `GET_FDCF_DATA.ipynb` | Extração de focos de calor (FDCF) com filtro de qualidade | CSV, Shapefile e metadados JSON |
+
+---
+
+## Índices Espectrais Implementados
+
+- **NDVI** - vigor/atividade da vegetação
+- **NBR / NBR2** - sensibilidade a áreas queimadas e condição pós-fogo
+- **NDMI** - umidade da vegetação
+- **MIRBI** - índice focado em queimadas no infravermelho médio
+- **EVI** - vegetação com menor saturação em alta biomassa
+- **SAVI** - vegetação com ajuste para influência do solo
+
+---
+
+## Estrutura Sugerida de Pastas
+
+```text
+CEPAGRI/
+├─ Dados/
+│  ├─ ABI-L2-ACMF/netCDF/
+│  ├─ ABI-L2-CMIPF/netCDF/
+│  └─ ABI-L2-FDCF/netCDF/
+├─ MASCARA_RECLASSIFICADA/
+├─ MASCARA_APLICADA/
+├─ CUT/
+├─ MASCARA_HIDRICA/
+├─ FINAL/
+├─ Arquivos/
+│  ├─ NDVI/ NBR/ NBR2/ NDMI/ MIRBI/ EVI/ SAVI/
+│  └─ MVC_NDVI/ MVC_NBR/ ...
+└─ NOTEBOOKS/Arquivos/
 ```
 
-## NDMI - Normalized Difference Moisture Index
-```math
-(NIR - SWIR1) / (NIR + SWIR1)
+> Os nomes de pasta podem ser ajustados, mas manter um padrão consistente facilita automação e rastreabilidade.
+
+---
+
+## Dependências
+
+### Núcleo geoespacial e raster
+- `numpy`
+- `rasterio`
+- `xarray`
+- `opencv-python`
+- `geopandas`
+- `shapely`
+- `pyproj`
+- `rioxarray`
+
+### Acesso a dados e utilidades
+- `s3fs` (acesso ao bucket público NOAA GOES-16)
+- `pandas`
+- `tqdm` (opcional para barra de progresso)
+
+### Instalação rápida
+
+```bash
+pip install numpy rasterio xarray opencv-python geopandas shapely pyproj rioxarray s3fs pandas tqdm
 ```
 
-## MIRBI - Mid-Infrared Burn INdex 
-```math
-((10*SWIR2) - (9.8*SWIR1) + 2)
-```
+---
 
-## EVI - Enhanced Vegetation Index
-```math
-((NIR - R) / (NIR + (6*R) - (7.5*B) + 1)
-```
+## Como Executar (Resumo)
 
-## BAI - Burned Area Index
+1. **Baixar dados GOES-16** com `GET_FILE.ipynb`.
+2. **Gerar e aplicar máscara de nuvem** (`RECLASSIFIED_MASK` -> `APPLIED_MASK`).
+3. **Recortar área de estudo** com `CUT.ipynb`.
+4. **Gerar e aplicar máscara hídrica** (`MASK_HIDRIC` -> `APPLIED_MASK_HIDRIC`).
+5. **Calcular índices espectrais** com `SPECTRAL_INDEX.ipynb`.
+6. **Gerar composições MVC** com `MAXIMUM_VALUE_COMPOSITION.ipynb`.
+7. (Opcional) **Processar FDCF** para focos de calor com `GET_FDCF_DATA.ipynb`.
 
-```math
-1 / ((0.1 - R)²+(0.06 - NIR)²)
-```
+---
 
-## SAVI - Soil Adjusted Vegetation Index 
+## Para Que Usar Este Pipeline?
 
-```math
-(2*[(NIR - R)/(NIR + R + 1))
-```
-</div>
+Este pipeline é útil para:
+
+- monitoramento de vegetação e estresse hídrico
+- estudos de queimadas e severidade de fogo
+- produção de séries temporais limpas para análise espacial
+- geração de produtos geoespaciais para QGIS/ArcGIS
+- suporte técnico a pesquisa aplicada e tomada de decisão ambiental
+
+---
+
+## Qualidade de Dados e Boas Práticas
+
+- validar rapidamente cada etapa com poucos arquivos antes do lote completo
+- manter convenção de nomes GOES-16 para garantir pareamento temporal automático
+- checar alinhamento espacial (CRS/transform/dimensões) entre bandas
+- monitorar `nodata` e propagação de `NaN` nas etapas de máscara
+- registrar metadados de execução para reprodutibilidade
+
+---
+
+## Próximos Passos Recomendados
+
+- adicionar `environment.yml` ou `requirements.txt` versionado
+- criar script único de execução ponta a ponta (CLI)
+- incluir testes automatizados para funções críticas
+- publicar exemplos de visualização em QGIS e notebooks de validação
+
+---
+
+## Licença
+
+Definir licença do projeto (ex.: MIT, BSD-3-Clause, GPL) antes da publicação final.
+
