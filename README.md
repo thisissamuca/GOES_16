@@ -66,7 +66,6 @@ Este repositório organiza um fluxo completo de **pré-processamento e análise 
 - **NDVI** - vigor/atividade da vegetação
 - **NBR / NBR2** - sensibilidade a áreas queimadas e condição pós-fogo
 - **NDMI** - umidade da vegetação
-- **MIRBI** - índice focado em queimadas no infravermelho médio
 - **EVI** - vegetação com menor saturação em alta biomassa
 - **SAVI** - vegetação com ajuste para influência do solo
 
@@ -86,7 +85,7 @@ PROJETO/
 ├─ MASCARA_HIDRICA/
 ├─ FINAL/
 ├─ Arquivos/
-│  ├─ NDVI/ NBR/ NBR2/ NDMI/ MIRBI/ EVI/ SAVI/
+│  ├─ NDVI/ NBR/ NBR2/ NDMI/ EVI/ SAVI/
 │  └─ MVC_NDVI/ MVC_NBR/ ...
 └─ NOTEBOOKS/Arquivos/
 ```
