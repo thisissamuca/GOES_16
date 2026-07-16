@@ -19,7 +19,6 @@ Indices calculados:
 - `NBR`
 - `NBR2`
 - `NDMI`
-- `MIRBI`
 - `EVI`
 - `SAVI`
 
@@ -56,7 +55,6 @@ pip install rasterio numpy tqdm
 - `NBR = (NIR - SWIR2) / (NIR + SWIR2)`
 - `NBR2 = (SWIR - SWIR2) / (SWIR + SWIR2)`
 - `NDMI = (NIR - SWIR) / (NIR + SWIR)`
-- `MIRBI = 10*SWIR2 - 9.8*SWIR + 2`
 - `EVI = (NIR - RED) / (NIR + 6*RED - 7.5*BLUE + 1)`
 - `SAVI = ((NIR - RED)/(NIR + RED + L))*(1+L)` com `L=0.5`
 
